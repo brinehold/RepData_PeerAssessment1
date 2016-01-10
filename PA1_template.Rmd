@@ -4,15 +4,15 @@ output:
   html_document:
     keep_md: true
 ---
-echo = TRUE
-library(lattice)
-library(plyr)
 
 ## Loading and preprocessing the data
-
+``` {r Load Data, echo = TRUE}
+library(lattice)
+library(plyr)
 fitbit <- read.csv("activity.csv")
-
+```
 ## What is mean total number of steps taken per day?
+``` {r Total Steps, echo = TRUE, include = TRUE}
 totSteps <- ddply(fitbit, "date", summarize, numSteps = sum(steps))
 hist(totSteps$numSteps, main = "Total # Steps Each Day", col = "blue", 
      xlab = "# of Steps")
@@ -20,8 +20,10 @@ hist(totSteps$numSteps, main = "Total # Steps Each Day", col = "blue",
 step_mean <- mean(totSteps$numSteps, na.rm = TRUE)
 step_median <- median(totSteps$numSteps, na.rm = TRUE)
 
-
+```
+The mean is `step_mean` and median is `step_median`
 ## What is the average daily activity pattern?
+``` {r Daily Activity, echo = TRUE, include = TRUE}
 dayPattern <- ddply(fitbit, "interval", summarize, avgSteps = 
                             mean(steps, na.rm = TRUE))
 
@@ -29,7 +31,10 @@ plot(dayPattern$avgSteps, type = "l", col = "red", main = "Daily Steps",
      xlab = "Time Increments (5min)", ylab = "Avg # Steps/Day")
 
 max_Int <- dayPattern[which.max(dayPattern$avgSteps),1]
+```
+The max interval is `max_Int`.
 ## Imputing missing values
+```{r Missing Values, echo = TRUE, include = TRUE}
 NAcount <- sum(is.na(fitbit$steps))
 
 fitbit2 <- fitbit
@@ -54,12 +59,16 @@ tot_steps2 <- sum(fitbit2$steps)
 
 diffSteps <- tot_steps - tot_steps2
 
-
+```
+The difference in the mean is `diffMean`.
+The difference in the median is `diffmedian`.
+The difference in steps is `diffsteps`.
 ## Are there differences in activity patterns between weekdays and weekends?
-
+``` {r Weekday vs Weekend, echo = TRUE, include = TRUE}
 weekdays <- weekdays(as.Date(fitbit2$date))
 data_weekdays <- transform(fitbit2, day=weekdays)
 data_weekdays$wk <- ifelse(data_weekdays$day %in% c("Saturday", "Sunday"),"weekend", "weekday")
 average_week <- ddply(data_weekdays, .(interval, wk), summarise, steps=mean(steps))
 
 xyplot(steps ~ interval | wk, data = average_week, layout = c(1, 2), type="l")
+```
